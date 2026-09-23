@@ -307,13 +307,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
 
   @Input()
   set minDate(value: dayjs.Dayjs | string) {
-    if (dayjs.isDayjs(value)) {
-      this.minDateHolder = value;
-    } else if (typeof value === 'string') {
-      this.minDateHolder = dayjs(value);
-    } else {
-      this.minDateHolder = null;
-    }
+    this.minDateHolder = this.asBound(value);
   }
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
@@ -346,13 +340,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
 
   @Input()
   set maxDate(value: dayjs.Dayjs | string) {
-    if (dayjs.isDayjs(value)) {
-      this.maxDateHolder = value;
-    } else if (typeof value === 'string') {
-      this.maxDateHolder = dayjs(value);
-    } else {
-      this.maxDateHolder = null;
-    }
+    this.maxDateHolder = this.asBound(value);
   }
 
   @Input()
@@ -1408,6 +1396,13 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       return date.isAfter(this.maxDate);
     });
     return areBothBefore || areBothAfter;
+  }
+
+  // a bound only counts once it parses. dayjs('') is an Invalid Date, which is truthy and loses every
+  // comparison it takes part in, so an absent bound used to stop applying rather than be absent
+  private asBound(value: dayjs.Dayjs | string): dayjs.Dayjs {
+    const parsed = dayjs.isDayjs(value) ? value : typeof value === 'string' ? dayjs(value) : null;
+    return parsed && parsed.isValid() ? parsed : null;
   }
 
   /**
