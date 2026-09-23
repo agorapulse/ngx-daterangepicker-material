@@ -1,6 +1,6 @@
 {
   "name": "@agorapulse/ngx-daterangepicker-material",
-  "version": "6.0.6",
+  "version": "6.0.7",
   "description": "Angular 9 and 10 date range picker (with material design theme)",
   "keywords": [
     "angular2",
