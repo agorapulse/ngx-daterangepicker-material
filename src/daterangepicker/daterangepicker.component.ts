@@ -1222,6 +1222,9 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       if (date.isBefore(this.startDate, 'day') === true && this.customRangeDirection === true) {
         this.setEndDate(this.startDate);
         this.setStartDate(date.clone());
+        // setStartDate runs last here and raises pickingDate again, though this second click just
+        // completed the range. A host reading the flag would wait for a third click that never comes
+        this.pickingDate = false;
       } else {
         this.setEndDate(date.clone());
       }
