@@ -43,8 +43,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      # No --access: this package is restricted on npm, and the flag would publish it to the world.
+      # Omitting it leaves whatever access the package already has untouched.
       - name: Publish to npmjs
-        run: npm publish --access public ./dist
+        run: npm publish ./dist
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
