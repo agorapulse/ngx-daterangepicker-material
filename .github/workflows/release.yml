@@ -1,0 +1,55 @@
+name: Release
+
+# The tag drives the release, and it is cut on a commit whose package.json already carries the
+# version. The job refuses to publish when the two disagree, so a mistyped tag cannot ship.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      # The lockfile predates npm's strict peer resolution, and @angular-devkit/build-angular
+      # declares ng-packagr as a peer of the very version pinned here.
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      - name: Check the tag against package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag=${GITHUB_REF#refs/tags/v}
+          packaged=$(node -p "require('./package.json').version")
+          if [[ "$tag" != "$packaged" ]]; then
+            echo "::error::tag v${tag} does not match package.json ${packaged}"
+            exit 1
+          fi
+
+      # ng-packagr writes the publishable manifest into dist/, scripts and devDependencies stripped.
+      - name: Build
+        run: npm run build
+
+      - name: Publish to npmjs
+        run: npm publish --access public ./dist
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create the GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${GITHUB_REF#refs/tags/}" --generate-notes --verify-tag
