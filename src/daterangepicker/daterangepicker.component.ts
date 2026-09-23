@@ -115,6 +115,7 @@ interface CalendarVariables {
   calCols: number[];
   calendar: CalendarArrayWithProps<Dayjs[]>;
   minDate: dayjs.Dayjs;
+  minSelectable: dayjs.Dayjs;
   year: number;
   classes: CalendarClasses;
   lastMonth: number;
@@ -677,6 +678,10 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
     //
     let minDate = side === 'left' ? this.minDate : this.startDate;
     let maxDate = this.maxDate;
+    // the floor a day is greyed against. kept apart from minDate, which the right calendar sets to
+    // startDate for its arrows and its month dropdown, and which would grey out a whole calendar
+    // customRangeDirection means to keep selectable
+    let minSelectable = this.minDate;
     // adjust maxDate to reflect the dateLimit setting in order to
     // grey out end dates beyond the dateLimit
     if (this.endDate === null && this.dateLimit) {
@@ -691,6 +696,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         if (!minDate || minLimit.isAfter(minDate)) {
           minDate = minLimit;
         }
+        minSelectable = minDate;
       }
     }
 
@@ -712,6 +718,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       calCols: Array.from(Array(7).keys()),
       classes: {},
       minDate,
+      minSelectable,
       maxDate,
       calendar
     };
@@ -1507,7 +1514,10 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
           classes.push(this.lastMonthDayClass);
         }
         // don't allow selection of dates before the minimum date
-        if (this.minDate && calendar[row][col].isBefore(this.minDate, 'day')) {
+        if (
+          this.calendarVariables[side].minSelectable &&
+          calendar[row][col].isBefore(this.calendarVariables[side].minSelectable, 'day')
+        ) {
           classes.push('off', 'disabled');
         }
         // don't allow selection of dates after the maximum date
