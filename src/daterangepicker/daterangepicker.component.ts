@@ -143,7 +143,6 @@ interface VisibleCalendar {
   calendar: CalendarArrayWithProps<Dayjs[]>;
 }
 
-// Angular 22 links a component that names no strategy as OnPush; hosts move these calendars from outside.
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'ngx-daterangepicker-material',
