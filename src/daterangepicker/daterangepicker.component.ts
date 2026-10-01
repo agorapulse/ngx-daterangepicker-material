@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -143,6 +144,7 @@ interface VisibleCalendar {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'ngx-daterangepicker-material',
   styleUrls: ['./daterangepicker.component.scss'],
   templateUrl: './daterangepicker.component.html',
