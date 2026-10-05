@@ -1269,6 +1269,8 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       const dates = this.ranges[label];
       this.startDate = dates[0].clone();
       this.endDate = dates[1].clone();
+      // Assigned, not set: setEndDate is what ends the pick a first click on a day started
+      this.pickingDate = false;
       if (this.showRangeLabelOnInput && label !== this.locale.customRangeLabel) {
         this.chosenLabel = label;
       } else {
